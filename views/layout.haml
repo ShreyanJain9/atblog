@@ -1,0 +1,8 @@
+!= yield 
+
+%br
+%br 
+%hr 
+%footer
+    - MainBlog.home_rec["badges"].each do |badge|  # Note every badge must be 88x31. Assume links for now, blobs come later
+        %img{ :src => badge["src"], :alt => badge["alt"], :width => 88, :height => 31}

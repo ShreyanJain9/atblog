@@ -1,5 +1,6 @@
 return {
     pds = "pds.shreyanjain.net",
     repo = "did:plc:bnqkww7bjxaacajzvu5gswdf",
-    post_collection = "app.bsky.feed.post"
+    post_collection = "com.whtwnd.blog.entry",
+    homepage_record = "net.shreyanjain.blog.homepage",
 }

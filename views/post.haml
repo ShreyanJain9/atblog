@@ -1,0 +1,10 @@
+%html 
+    %head 
+        %link{ :rel => "stylesheet", :href => "/style.css" }
+        %title= post_content["title"] + " | " + MainBlog.home_rec["title"]
+
+%h1= post_content["title"]
+%p= post_content["content"] # Specify in more detail later
+
+
+%a{:href => "javascript:history.go(-1)"} Back

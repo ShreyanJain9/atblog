@@ -1,0 +1,21 @@
+%html 
+    %head 
+        %link{ :rel => "stylesheet", :href => "/style.css" }
+        %title= MainBlog.home_rec["title"]
+
+%h2= MainBlog.home_rec["title"] 
+
+- if posts.length > 0 
+    %ul
+        - posts.each do |post| 
+            %li 
+                %a{ :href => at_link_to_real_url(post["uri"]) }= post["value"]["title"]
+- else 
+    %p No More Posts! 
+
+- if cursor 
+    %a{ :href => "/?page=#{cursor}"} More Posts
+
+- if backbutton 
+    %a{ :href => "javascript:history.go(-1)"} Back 
+ 
