@@ -1,6 +1,7 @@
 require "sinatra"
 
 require "haml"
+require "kramdown"
 require_relative "extra/helpers"
 ENV["LUA_LIB"] = abs_path("./liblua.dylib")
 require_relative "app/env"
