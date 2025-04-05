@@ -1,21 +1,30 @@
-%html 
-    %head 
+%html
+    %head
         %link{ :rel => "stylesheet", :href => "/style.css" }
         %title= MainBlog.home_rec["title"]
 
-%h2= MainBlog.home_rec["title"] 
+%h2= MainBlog.home_rec["title"]
 
-- if posts.length > 0 
+- MainBlog.home_rec["content"].each do |section|
+    - case get_type(section["$type"])
+        - when "paragraph"
+            %p= render_section(section["text"])
+        - when "heading"
+            %h3= section["text"]
+        - when "subheading"
+            %h4= section["text"]
+
+- if posts.length > 0
     %ul
-        - posts.each do |post| 
-            %li 
+        - posts.each do |post|
+            %li
                 %a{ :href => at_link_to_real_url(post["uri"]) }= post["value"]["title"]
-- else 
-    %p No More Posts! 
+- else
+    %p No More Posts!
 
-- if cursor 
+- if cursor
     %a{ :href => "/?page=#{cursor}"} More Posts
 
-- if backbutton 
-    %a{ :href => "javascript:history.go(-1)"} Back 
- 
+- if backbutton
+    %a{ :href => "javascript:history.go(-1)"} Back
+

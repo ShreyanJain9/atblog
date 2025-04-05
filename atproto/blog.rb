@@ -18,23 +18,33 @@ class AtBlog::Blog
     stuff = @client.get_request(
       "com.atproto.repo.listRecords",
       { repo: @config.repo, collection: @config.post_collection, cursor: page, limit: 100 },
-    ) 
+    )
 
     return {
-      records: stuff["records"],
-      cursor: stuff["cursor"]
-    }
-
+             records: stuff["records"],
+             cursor: stuff["cursor"],
+           }
   end
 
   def get_post(post_id)
     @client.get_request("com.atproto.repo.getRecord", { repo: @config.repo, collection: @config.post_collection, rkey: post_id })
   end
-
 end
 
 def at_link_to_real_url(link)
   uri_bits = link.split("/")
-  rkey = uri_bits.last 
+  rkey = uri_bits.last
   "/post/#{rkey}"
+end
+
+def get_type(lex)
+  if lex.start_with?(MainBlog.config.richtext_lex)
+    lex.split("#")[1]
+  else
+    raise "Not richtext"
+  end
+end
+
+def render_section(text)
+  text
 end
