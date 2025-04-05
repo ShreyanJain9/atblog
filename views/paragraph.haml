@@ -1,0 +1,15 @@
+%p=
+    - text.each do |block|
+        - content = block["content"]
+        - if formatting = block["formatting"]
+            - case get_type(formatting["$type"])
+            - when "bold"
+                %strong= content
+            - when "italic"
+                %em= content
+            - when "underline"
+                %u= content
+            - else
+                = content
+        - else
+            = content

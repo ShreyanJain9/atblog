@@ -13,6 +13,14 @@
             %h3= section["text"]
         - when "subheading"
             %h4= section["text"]
+        - when "image"
+            - img = section["text"]
+            - link = case img["source"]
+                - when "blob"
+                    - "https://#{MainBlog.config.pds}/xrpc/com.atproto.sync.getBlob/?cid=#{img["img"]}&did=#{MainBlog.config.repo}"
+                - when "url"
+                    - img["img"]
+            %img{ :src => link, :alt => img["alt"] }
 
 - if posts.length > 0
     %ul
