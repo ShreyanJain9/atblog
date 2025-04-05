@@ -41,7 +41,7 @@ def get_type(lex)
   if lex.start_with?(MainBlog.config.richtext_lex)
     lex.split("#")[1]
   else
-    raise "Not richtext"
+    raise "Formatting lexicon not recognized: #{lex}"
   end
 end
 

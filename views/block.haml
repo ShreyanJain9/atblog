@@ -14,4 +14,8 @@
                     - "https://#{MainBlog.config.pds}/xrpc/com.atproto.sync.getBlob/?cid=#{img["img"]}&did=#{MainBlog.config.repo}"
                 - when "url"
                     - img["img"]
-            %img{ :src => link, :alt => img["alt"] }
+            - if dims = img["dimensions"]
+                %img{ :src => link, :alt => img["alt"], :width => dims["width"], :height => dims["height"] }
+            - else
+                %img{ :src => link, :alt => img["alt"] }
+

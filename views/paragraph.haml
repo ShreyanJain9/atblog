@@ -2,6 +2,16 @@
     - @text.each do |block|
         - content = block["content"]
         - if formatting = block["formatting"]
+            /
+                You might notice we use formatting.first.
+                Well, the reason behind that is that right now,
+                this only actually supports one piece of formatting per block,
+                but I'm leaving formatting as an array just in case
+                it expands to overlapping formatting.
+
+                Unfortunately, with this formatting, I think
+                only 1:1 overlapping formatting will ever be possible,
+                but for now we're not even doing that, just 1 piece of formatting.
             - type = get_type(formatting.first["$type"])
             - case type
                 - when "bold"
