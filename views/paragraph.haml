@@ -1,20 +1,18 @@
 %p
-  - @text.each do |block|
-    - content = block["content"]
-    - if formatting = block["formatting"]
-      - tags = []
-      - formatting.each do |facet|
-        - type = get_type(facet["$type"])
-        - if tag_info = TagMap[type]
-          - attrs = {}
-          - if type == "link"
-            - attrs[:href] = facet["href"]
-          - tags << { tag: tag_info[:tag], attrs: attrs }
-      - if tags.any?
-        - wrapped = tags.reverse.inject(content) do |memo, info|
-          - haml_tag(info[:tag], info[:attrs]) { haml_concat memo }
-        = wrapped
-      - else
-        != content
-    - else
-      != content
+    - @text.each do |block|
+        - content = block["content"]
+        - if formatting = block["formatting"]
+            - type = get_type(formatting.first["$type"])
+            - case type
+                - when "bold"
+                    %strong= content
+                - when "italic"
+                    %em= content
+                - when "underline"
+                    %u= content
+                - when "link"
+                    %a{ href: formatting.first["href"] }= content
+                - else
+                    != content
+        - else
+            != content

@@ -9,3 +9,5 @@ gem "rackup", "~> 2.2"
 gem "puma", "~> 6.6"
 
 gem "kramdown", "~> 2.5"
+
+gem "sinatra-contrib", "~> 4.1"

@@ -48,10 +48,3 @@ end
 def render_section(text)
   text
 end
-
-TagMap = {
-  "bold" => { tag: :strong },
-  "italic" => { tag: :em },
-  "underline" => { tag: :u },
-  "link" => { tag: :a },
-}

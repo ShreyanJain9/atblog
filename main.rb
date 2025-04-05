@@ -1,4 +1,5 @@
 require "sinatra"
+require "sinatra/contrib"
 
 require "haml"
 require "kramdown"
@@ -11,7 +12,7 @@ MainBlog = AtBlog::Blog.new(AtBlog::Config)
 
 get "/" do
   page = params[:page]
-  backbutton = page != nil 
+  backbutton = page != nil
   data = MainBlog.post_list(page)
   cursor = data[:cursor]
   posts = data[:records]
