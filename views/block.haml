@@ -1,0 +1,17 @@
+- @content.each do |section|
+    - case get_type(section["$type"])
+        - when "paragraph"
+            - @text = section["text"]
+            != haml :paragraph
+        - when "heading"
+            %h3= section["text"]
+        - when "subheading"
+            %h4= section["text"]
+        - when "image"
+            - img = section["text"]
+            - link = case img["source"]
+                - when "blob"
+                    - "https://#{MainBlog.config.pds}/xrpc/com.atproto.sync.getBlob/?cid=#{img["img"]}&did=#{MainBlog.config.repo}"
+                - when "url"
+                    - img["img"]
+            %img{ :src => link, :alt => img["alt"] }
