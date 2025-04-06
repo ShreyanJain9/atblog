@@ -8,5 +8,9 @@
 - @content = post_content["content"]
 != haml :block
 
+- if comment_bsky_link = post_content["comments"]
+    %blue-comments{ uri: comment_bsky_link }
+    %script{ type: "module", async: true, defer: true, src: "https://esm.sh/blue-comments" }
+
 
 %a{:href => "javascript:history.go(-1)"} Back
