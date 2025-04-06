@@ -1,0 +1,117 @@
+<!-- This file is written by ChatGPT. I am lazy. -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to Post Format</title>
+    <script src="https://cdn.jsdelivr.net/npm/showdown@1.9.1/dist/showdown.min.js"></script>
+</head>
+<body>
+    <h1>Markdown to Post Format Converter</h1>
+
+    <textarea id="markdownInput" rows="10" cols="50" placeholder="Enter your Markdown here..."></textarea><br>
+    <button id="convertButton">Convert</button>
+
+    <h2>Converted Post Format:</h2>
+    <pre id="output"></pre>
+
+    <script>
+        // Initialize Showdown (Markdown to HTML)
+        const converter = new showdown.Converter();
+
+        // Mapping Markdown to your custom format
+        function convertMarkdownToCustomFormat(markdown) {
+            const lines = markdown.split("\n");
+            const result = [];
+
+            let currentParagraph = [];
+            let currentFormatting = null;
+
+            lines.forEach(line => {
+                if (line.startsWith('# ')) {
+                    // Heading
+                    result.push({
+                        text: line.substring(2),
+                        $type: "net.shreyanjain.blog.richtext#heading"
+                    });
+                } else if (line.startsWith('## ')) {
+                    // Subheading
+                    result.push({
+                        text: line.substring(3),
+                        $type: "net.shreyanjain.blog.richtext#subheading"
+                    });
+                } else if (line.startsWith('![')) {
+                    // Image (Markdown: ![alt text](url))
+                    const altText = line.match(/\[([^\]]+)\]/)[1];
+                    const url = line.match(/\(([^)]+)\)/)[1];
+                    result.push({
+                        text: {
+                            alt: altText,
+                            img: url,
+                            source: "url",
+                            dimensions: { width: 200, height: 150 }
+                        },
+                        $type: "net.shreyanjain.blog.richtext#image"
+                    });
+                } else {
+                    // Paragraph or normal text
+                    const parts = line.split(/(\*\*.*?\*\*|\*.*?\*|_[^_]+_|~~.*?~~|\[.*?\]\(.*?\))/g); // Splits on Markdown formatting
+
+                    parts.forEach(part => {
+                        if (part.startsWith("**")) {
+                            // Bold text
+                            currentParagraph.push({
+                                content: part.slice(2, -2),
+                                formatting: [{ "$type": "net.shreyanjain.blog.richtext#bold" }]
+                            });
+                        } else if (part.startsWith("*") || part.startsWith("_")) {
+                            // Italic text
+                            currentParagraph.push({
+                                content: part.slice(1, -1),
+                                formatting: [{ "$type": "net.shreyanjain.blog.richtext#italic" }]
+                            });
+                        } else if (part.startsWith("~~")) {
+                            // Strikethrough text (if desired)
+                            currentParagraph.push({
+                                content: part.slice(2, -2),
+                                formatting: [{ "$type": "net.shreyanjain.blog.richtext#strikethrough" }]
+                            });
+                        } else if (part.startsWith("[") && part.includes("](")) {
+                            // Link (Markdown: [text](url))
+                            const linkText = part.match(/\[([^\]]+)\]/)[1];
+                            const linkUrl = part.match(/\(([^)]+)\)/)[1];
+                            currentParagraph.push({
+                                content: linkText,
+                                formatting: [{
+                                    "$type": "net.shreyanjain.blog.richtext#link",
+                                    "href": linkUrl
+                                }]
+                            });
+                        } else if (part.trim()) {
+                            // Normal text
+                            currentParagraph.push({ content: part });
+                        }
+                    });
+
+                    result.push({
+                        text: currentParagraph,
+                        $type: "net.shreyanjain.blog.richtext#paragraph"
+                    });
+                    currentParagraph = [];
+                }
+            });
+
+            return result;
+        }
+
+        // Handle the button click event
+        document.getElementById("convertButton").addEventListener("click", () => {
+            const markdownInput = document.getElementById("markdownInput").value;
+            const customFormat = convertMarkdownToCustomFormat(markdownInput);
+            document.getElementById("output").textContent = JSON.stringify(customFormat, null, 4);
+        });
+    </script>
+</body>
+</html>
