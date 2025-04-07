@@ -17,14 +17,15 @@
             - type = get_type(formatting.first["$type"])
             - case type
                 - when "bold"
-                    %strong= content
+                    %strong>= content
                 - when "italic"
-                    %em= content
+                    %em>= content
                 - when "underline"
-                    %u= content
+                    %u>= content
                 - when "link"
-                    %a{ href: formatting.first["href"] }= content
+                    %a{ href: formatting.first["href"] }>= content
                 - else
                     != content
+
         - else
             != content
