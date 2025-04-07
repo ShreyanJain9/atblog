@@ -2,11 +2,13 @@
     - case get_type(section["$type"])
         - when "paragraph"
             - @text = section["text"]
-            != haml :paragraph
+            - if @text.empty?
+            - else
+                != haml :paragraph
         - when "heading"
-            %h3= section["text"]
+            %h3>= section["text"]
         - when "subheading"
-            %h4= section["text"]
+            %h4>= section["text"]
         - when "image"
             - img = section["text"]
             - link = case img["source"]
@@ -15,7 +17,7 @@
                 - when "url"
                     - img["img"]
             - if dims = img["dimensions"]
-                %img{ :src => link, :alt => img["alt"], :width => dims["width"], :height => dims["height"] }
+                %img{ :src => link, :alt => img["alt"], :width => dims["width"], :height => dims["height"] }>
             - else
-                %img{ :src => link, :alt => img["alt"] }
+                %img{ :src => link, :alt => img["alt"] }>
 
