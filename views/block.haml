@@ -4,7 +4,15 @@
             - @text = section["text"]
             - if @text.empty?
             - else
-                != haml :paragraph
+                %p<>!= haml :paragraph
+        - when "list"
+            %ol
+                - section["text"].each do |elem|
+                    - @text = elem
+                    %li<>!= haml :paragraph
+        - when "code"
+            %pre
+                %code<>= section["text"]
         - when "heading"
             %h3>= section["text"]
         - when "subheading"
