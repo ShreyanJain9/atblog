@@ -24,6 +24,8 @@
                     %u>= content
                 - when "link"
                     %a{ href: formatting.first["href"] }>= content
+                - when "code-inline"
+                    %code>= content
                 - else
                     = content
 
