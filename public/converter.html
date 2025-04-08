@@ -1,117 +1,301 @@
 <!-- This file is written by ChatGPT. I am lazy. -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown to Post Format</title>
-    <script src="https://cdn.jsdelivr.net/npm/showdown@1.9.1/dist/showdown.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Markdown Editor to ATProto JSON</title>
+  <!-- Toast UI Editor CSS -->
+  <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    .pane {
+      flex: 1;
+      padding: 1em;
+      overflow-y: auto;
+      border-right: 1px solid #ccc;
+    }
+    .json-pane {
+      background: #f6f6f6;
+      font-family: monospace;
+      white-space: pre-wrap;
+      padding: 1em;
+      position: relative;
+    }
+    .title-input {
+      width: calc(100% - 16px);
+      margin: 0.5em;
+      font-size: 1.2em;
+      padding: 8px;
+    }
+    #editorContainer {
+      height: calc(100% - 60px);
+    }
+    /* Copy button styling */
+    #copyButton {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      font-size: 0.9em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #copyButton:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
-    <h1>Markdown to Post Format Converter</h1>
+  <!-- Left Pane: Markdown Editor -->
+  <div class="pane">
+    <input type="text" id="title" class="title-input" placeholder="Enter Title Here" value="Nostr and ATProto - Part 1">
+    <div id="editorContainer"></div>
+  </div>
 
-    <textarea id="markdownInput" rows="10" cols="50" placeholder="Enter your Markdown here..."></textarea><br>
-    <button id="convertButton">Convert</button>
+  <!-- Right Pane: JSON Output with Copy Button -->
+  <div class="pane json-pane" id="jsonOutput">
+    <button id="copyButton">Copy JSON</button>
+    <!-- Live JSON output appears here -->
+  </div>
 
-    <h2>Converted Post Format:</h2>
-    <pre id="output"></pre>
+  <!-- Toast UI Editor JS -->
+  <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+  <!-- markdown-it for parsing markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it@12.2.0/dist/markdown-it.min.js"></script>
+  <script>
+    // Initialize Toast UI Editor in Markdown mode.
+    const editor = new toastui.Editor({
+      el: document.querySelector('#editorContainer'),
+      initialEditType: 'markdown',
+      previewStyle: 'vertical',
+      height: '100%',
+    });
 
-    <script>
-        // Initialize Showdown (Markdown to HTML)
-        const converter = new showdown.Converter();
+    // Create a markdown-it instance.
+    const md = window.markdownit({
+      html: false,
+      linkify: true,
+      typographer: true,
+    });
 
-        // Mapping Markdown to your custom format
-        function convertMarkdownToCustomFormat(markdown) {
-            const lines = markdown.split("\n");
-            const result = [];
+    // Update the JSON output on editor changes or title changes.
+    document.getElementById('title').addEventListener('input', updateJson);
+    editor.on('change', updateJson);
 
-            let currentParagraph = [];
-            let currentFormatting = null;
+    // Copy button event listener.
+    document.getElementById('copyButton').addEventListener('click', () => {
+      const jsonText = document.getElementById('jsonOutput').textContent;
+      navigator.clipboard.writeText(jsonText)
+        .then(() => {
+          alert('JSON copied to clipboard!');
+        })
+        .catch(err => {
+          alert('Failed to copy JSON: ' + err);
+        });
+    });
 
-            lines.forEach(line => {
-                if (line.startsWith('# ')) {
-                    // Heading
-                    result.push({
-                        text: line.substring(2),
-                        $type: "net.shreyanjain.blog.richtext#heading"
-                    });
-                } else if (line.startsWith('## ')) {
-                    // Subheading
-                    result.push({
-                        text: line.substring(3),
-                        $type: "net.shreyanjain.blog.richtext#subheading"
-                    });
-                } else if (line.startsWith('![')) {
-                    // Image (Markdown: ![alt text](url))
-                    const altText = line.match(/\[([^\]]+)\]/)[1];
-                    const url = line.match(/\(([^)]+)\)/)[1];
-                    result.push({
-                        text: {
-                            alt: altText,
-                            img: url,
-                            source: "url",
-                            dimensions: { width: 200, height: 150 }
-                        },
-                        $type: "net.shreyanjain.blog.richtext#image"
-                    });
-                } else {
-                    // Paragraph or normal text
-                    const parts = line.split(/(\*\*.*?\*\*|\*.*?\*|_[^_]+_|~~.*?~~|\[.*?\]\(.*?\))/g); // Splits on Markdown formatting
+    // The main conversion function: parses markdown to tokens and converts to our custom JSON.
+    function updateJson() {
+      const markdown = editor.getMarkdown();
+      const title = document.getElementById('title').value;
+      // Parse the markdown into tokens using markdown-it.
+      const tokens = md.parse(markdown, {});
+      const content = convertTokensToJson(tokens);
 
-                    parts.forEach(part => {
-                        if (part.startsWith("**")) {
-                            // Bold text
-                            currentParagraph.push({
-                                content: part.slice(2, -2),
-                                formatting: [{ "$type": "net.shreyanjain.blog.richtext#bold" }]
-                            });
-                        } else if (part.startsWith("*") || part.startsWith("_")) {
-                            // Italic text
-                            currentParagraph.push({
-                                content: part.slice(1, -1),
-                                formatting: [{ "$type": "net.shreyanjain.blog.richtext#italic" }]
-                            });
-                        } else if (part.startsWith("~~")) {
-                            // Strikethrough text (if desired)
-                            currentParagraph.push({
-                                content: part.slice(2, -2),
-                                formatting: [{ "$type": "net.shreyanjain.blog.richtext#strikethrough" }]
-                            });
-                        } else if (part.startsWith("[") && part.includes("](")) {
-                            // Link (Markdown: [text](url))
-                            const linkText = part.match(/\[([^\]]+)\]/)[1];
-                            const linkUrl = part.match(/\(([^)]+)\)/)[1];
-                            currentParagraph.push({
-                                content: linkText,
-                                formatting: [{
-                                    "$type": "net.shreyanjain.blog.richtext#link",
-                                    "href": linkUrl
-                                }]
-                            });
-                        } else if (part.trim()) {
-                            // Normal text
-                            currentParagraph.push({ content: part });
-                        }
-                    });
+      const jsonOutput = {
+        "$type": "net.shreyanjain.blog.post",
+        "title": title,
+        "content": content,
+        "createdAt": new Date().toISOString()
+      };
 
-                    result.push({
-                        text: currentParagraph,
-                        $type: "net.shreyanjain.blog.richtext#paragraph"
-                    });
-                    currentParagraph = [];
-                }
-            });
+      document.getElementById('jsonOutput').childNodes.forEach(node => {
+        if(node.nodeType === Node.TEXT_NODE) node.remove();
+      });
 
-            return result;
+      // Update the jsonOutput's text content (the copy button remains unaffected).
+      document.getElementById('jsonOutput').lastChild.textContent = JSON.stringify(jsonOutput, null, 2);
+      // Instead, update the JSON text by replacing all text except the copy button.
+      const copyButton = document.getElementById('copyButton');
+      document.getElementById('jsonOutput').innerHTML = "";
+      document.getElementById('jsonOutput').appendChild(copyButton);
+      const pre = document.createElement('pre');
+      pre.textContent = JSON.stringify(jsonOutput, null, 2);
+      document.getElementById('jsonOutput').appendChild(pre);
+    }
+
+    // Converts markdown-it tokens into your custom JSON blocks.
+    function convertTokensToJson(tokens) {
+      const blocks = [];
+      let i = 0;
+
+      while(i < tokens.length) {
+        const token = tokens[i];
+
+        // Process headings with raw text output.
+        if(token.type === 'heading_open') {
+          const level = parseInt(token.tag.slice(1));
+          const inlineToken = tokens[i+1]; // inline token holds the heading text
+          // Process inline tokens and join them to a string.
+          const textContent = processInline(inlineToken.children).map(seg => seg.content).join('');
+          const block = {
+            "text": textContent,
+            "$type": level === 1
+              ? "net.shreyanjain.blog.richtext#heading"
+              : "net.shreyanjain.blog.richtext#subheading"
+          };
+          blocks.push(block);
+          i += 3; // skip heading_open, inline, heading_close
+          continue;
         }
 
-        // Handle the button click event
-        document.getElementById("convertButton").addEventListener("click", () => {
-            const markdownInput = document.getElementById("markdownInput").value;
-            const customFormat = convertMarkdownToCustomFormat(markdownInput);
-            document.getElementById("output").textContent = JSON.stringify(customFormat, null, 4);
-        });
-    </script>
+        // Process paragraphs (still using content arrays).
+        if(token.type === 'paragraph_open') {
+          const inlineToken = tokens[i+1]; // inline token for paragraph
+          const textBlocks = processInline(inlineToken.children);
+          const block = {
+            "text": textBlocks,
+            "$type": "net.shreyanjain.blog.richtext#paragraph"
+          };
+          blocks.push(block);
+          i += 3; // skip paragraph_open, inline, paragraph_close
+          continue;
+        }
+
+        // Process code blocks (fence)
+        if(token.type === 'fence') {
+          const block = {
+            "text": token.content,
+            "$type": "net.shreyanjain.blog.richtext#code"
+          };
+          blocks.push(block);
+          i++;
+          continue;
+        }
+
+        // Process lists (both bullet and ordered)
+        if(token.type === 'bullet_list_open' || token.type === 'ordered_list_open') {
+          const listItems = [];
+          i++; // advance into list items
+          while(i < tokens.length && tokens[i].type !== 'bullet_list_close' && tokens[i].type !== 'ordered_list_close') {
+            if(tokens[i].type === 'list_item_open') {
+              // Each list item is expected to have a paragraph inside.
+              i++; // move into list item content
+              let itemContent = [];
+              if(tokens[i].type === 'paragraph_open') {
+                const inlineToken = tokens[i+1];
+                itemContent = processInline(inlineToken.children);
+                i += 3; // skip paragraph tokens
+              }
+              listItems.push(itemContent);
+              while(i < tokens.length && tokens[i].type !== 'list_item_close') { i++; }
+              i++; // skip list_item_close
+            } else {
+              i++;
+            }
+          }
+          // Wrap list items in a list block.
+          const block = {
+            "text": listItems,
+            "$type": "net.shreyanjain.blog.richtext#list"
+          };
+          blocks.push(block);
+          i++; // skip list_close
+          continue;
+        }
+
+        // If token not matched, advance.
+        i++;
+      }
+
+      return blocks;
+    }
+
+    // Process inline tokens to extract text segments and formatting.
+    function processInline(tokens) {
+      const segments = [];
+      let i = 0;
+
+      while (i < tokens.length) {
+        const token = tokens[i];
+
+        if (token.type === 'text') {
+          segments.push({ "content": token.content });
+          i++;
+        } else if (token.type === 'code_inline') {
+          segments.push({
+            "content": token.content,
+            "formatting": [
+              { "$type": "net.shreyanjain.blog.richtext#code-inline" }
+            ]
+          });
+          i++;
+        } else if (token.type === 'em_open') {
+          let content = "";
+          i++;
+          while(i < tokens.length && tokens[i].type !== 'em_close') {
+            if(tokens[i].content) content += tokens[i].content;
+            i++;
+          }
+          i++; // Skip 'em_close'
+          segments.push({
+            "content": content,
+            "formatting": [
+              { "$type": "net.shreyanjain.blog.richtext#italic" }
+            ]
+          });
+        } else if (token.type === 'strong_open') {
+          let content = "";
+          i++;
+          while(i < tokens.length && tokens[i].type !== 'strong_close') {
+            if(tokens[i].content) content += tokens[i].content;
+            i++;
+          }
+          i++; // Skip 'strong_close'
+          segments.push({
+            "content": content,
+            "formatting": [
+              { "$type": "net.shreyanjain.blog.richtext#bold" }
+            ]
+          });
+        } else if (token.type === 'link_open') {
+          let href = "";
+          if (token.attrs) {
+            const hrefAttr = token.attrs.find(attr => attr[0] === 'href');
+            if (hrefAttr) href = hrefAttr[1];
+          }
+          let content = "";
+          i++;
+          while(i < tokens.length && tokens[i].type !== 'link_close') {
+            if(tokens[i].content) content += tokens[i].content;
+            i++;
+          }
+          i++; // Skip 'link_close'
+          segments.push({
+            "content": content,
+            "formatting": [
+              { "$type": "net.shreyanjain.blog.richtext#link", "href": href }
+            ]
+          });
+        } else {
+          // Skip any unhandled tokens.
+          i++;
+        }
+      }
+
+      return segments;
+    }
+
+    // Initial call
+    updateJson();
+  </script>
 </body>
 </html>
