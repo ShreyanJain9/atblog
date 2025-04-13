@@ -1,5 +1,5 @@
 - @content.each do |section|
-    - case get_type(section["$type"])
+    - case get_block_type(section["$type"])
         - when "paragraph"
             - @text = section["text"]
             - if @text.empty?

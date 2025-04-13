@@ -14,7 +14,7 @@
                 but for now we're not even doing that, just 1 piece of formatting.
 
                 Also, it has slight trouble with characters coming right after differently formatted ones.
-            - type = get_type(formatting.first["$type"])
+            - type = get_formatting_type(formatting.first["$type"])
             - case type
                 - when "bold"
                     %strong>= content
@@ -24,7 +24,7 @@
                     %u>= content
                 - when "link"
                     %a{ href: formatting.first["href"] }>= content
-                - when "code-inline"
+                - when "code"
                     %code>= content
                 - else
                     = content

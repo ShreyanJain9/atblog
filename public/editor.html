@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Markdown Editor to ATProto JSON</title>
+  <title>Blog Post Editor</title>
   <!-- Toast UI Editor CSS -->
   <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
   <style>
@@ -149,8 +149,8 @@
           const block = {
             "text": textContent,
             "$type": level === 1
-              ? "net.shreyanjain.blog.richtext#heading"
-              : "net.shreyanjain.blog.richtext#subheading"
+              ? "net.shreyanjain.richtext.block#heading"
+              : "net.shreyanjain.richtext.block#subheading"
           };
           blocks.push(block);
           i += 3; // skip heading_open, inline, heading_close
@@ -163,7 +163,7 @@
           const textBlocks = processInline(inlineToken.children);
           const block = {
             "text": textBlocks,
-            "$type": "net.shreyanjain.blog.richtext#paragraph"
+            "$type": "net.shreyanjain.richtext.block#paragraph"
           };
           blocks.push(block);
           i += 3; // skip paragraph_open, inline, paragraph_close
@@ -174,7 +174,7 @@
         if(token.type === 'fence') {
           const block = {
             "text": token.content,
-            "$type": "net.shreyanjain.blog.richtext#code"
+            "$type": "net.shreyanjain.richtext.block#code"
           };
           blocks.push(block);
           i++;
@@ -205,7 +205,7 @@
           // Wrap list items in a list block.
           const block = {
             "text": listItems,
-            "$type": "net.shreyanjain.blog.richtext#list"
+            "$type": "net.shreyanjain.richtext.block#list"
           };
           blocks.push(block);
           i++; // skip list_close
@@ -234,7 +234,7 @@
           segments.push({
             "content": token.content,
             "formatting": [
-              { "$type": "net.shreyanjain.blog.richtext#code-inline" }
+              { "$type": "net.shreyanjain.richtext.formatting#code" }
             ]
           });
           i++;
@@ -249,7 +249,7 @@
           segments.push({
             "content": content,
             "formatting": [
-              { "$type": "net.shreyanjain.blog.richtext#italic" }
+              { "$type": "net.shreyanjain.richtext.formatting#italic" }
             ]
           });
         } else if (token.type === 'strong_open') {
@@ -263,7 +263,7 @@
           segments.push({
             "content": content,
             "formatting": [
-              { "$type": "net.shreyanjain.blog.richtext#bold" }
+              { "$type": "net.shreyanjain.richtext.formatting#bold" }
             ]
           });
         } else if (token.type === 'link_open') {
@@ -282,7 +282,7 @@
           segments.push({
             "content": content,
             "formatting": [
-              { "$type": "net.shreyanjain.blog.richtext#link", "href": href }
+              { "$type": "net.shreyanjain.richtext.formatting#link", "href": href }
             ]
           });
         } else {

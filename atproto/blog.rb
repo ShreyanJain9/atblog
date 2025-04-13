@@ -37,11 +37,19 @@ def at_link_to_real_url(link)
   "/post/#{rkey}"
 end
 
-def get_type(lex)
-  if lex.start_with?(MainBlog.config.richtext_lex)
+def get_formatting_type(lex)
+  if lex.start_with?(MainBlog.config.formatting_lex)
     lex.split("#")[1]
   else
     raise "Formatting lexicon not recognized: #{lex}"
+  end
+end
+
+def get_block_type(lex)
+  if lex.start_with?(MainBlog.config.block_lex)
+    lex.split("#")[1]
+  else
+    raise "Block lexicon not recognized: #{lex}"
   end
 end
 
