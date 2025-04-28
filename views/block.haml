@@ -5,6 +5,8 @@
             - if @text.empty?
             - else
                 %p<>!= haml :paragraph
+        - when "html"
+            != section["text"]
         - when "list"
             %ol
                 - section["text"].each do |elem|
